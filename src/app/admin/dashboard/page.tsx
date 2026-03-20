@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import { Loader2, CheckCircle2, AlertCircle, Plus } from "lucide-react";
+import BulkUpload from "@/components/BulkUpload";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -24,9 +25,9 @@ export default function DashboardPage() {
   });
 
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+    const checkSession = () => {
+      const session = localStorage.getItem("adminSession");
+      if (session !== "active") {
         router.replace("/admin/login");
       } else {
         setIsVerifying(false);
@@ -123,6 +124,8 @@ export default function DashboardPage() {
         <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
         <p className="text-gray-500 mt-2">Add a new supplier to the procurement directory.</p>
       </div>
+
+      <BulkUpload />
 
       <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden">
         <div className="bg-gray-50 dark:bg-gray-900/50 px-6 py-4 border-b border-gray-200 dark:border-gray-700">

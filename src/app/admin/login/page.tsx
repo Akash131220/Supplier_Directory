@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
-import { Lock, Mail, AlertCircle, Loader2 } from "lucide-react";
+import { Lock, User, AlertCircle, Loader2 } from "lucide-react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -17,53 +16,18 @@ export default function LoginPage() {
     setIsLoading(true);
     setError("");
 
-    // Hardcode restriction to specific admin email
-    if (email !== "ProcureDir@gmail.com") {
-      setError("Unauthorized access. Only approved admin credentials may log in.");
-      setIsLoading(false);
-      return;
-    }
-    if (password !== "@Patil") {
-       setError("Invalid password.");
-       setIsLoading(false);
-       return;
-    }
+    // Simulate quick network check
+    await new Promise((resolve) => setTimeout(resolve, 800));
 
-    // Try to sign in first
-    let { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-
-    // If invalid login credentials, auto-register the admin user
-    if (error && error.message.includes("Invalid login credentials")) {
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email,
-        password,
-      });
-
-      if (signUpError) {
-        setError("Failed to create admin user: " + signUpError.message);
-        setIsLoading(false);
-        return;
-      }
-
-      if (signUpData.session) {
-        // Successfully created and logged in
-        router.push("/admin/dashboard");
-        router.refresh();
-        return;
-      } else {
-        setError("Account registered securely, but Supabase requires email confirmation first. Please check your inbox or disable 'Confirm Email' in your Supabase Authentication settings.");
-        setIsLoading(false);
-        return;
-      }
-    } else if (error) {
-      setError(error.message);
-      setIsLoading(false);
-    } else {
+    // Hardcode restriction to specific User ID and Password
+    if (userId === "ProcureDir" && password === "@Patil1312") {
+      // Secure local login session
+      localStorage.setItem("adminSession", "active");
       router.push("/admin/dashboard");
       router.refresh();
+    } else {
+      setError("Invalid User ID or Password.");
+      setIsLoading(false);
     }
   };
 
@@ -88,19 +52,19 @@ export default function LoginPage() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                Email Address
+                User ID
               </label>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Mail className="h-5 w-5 text-gray-400" />
+                  <User className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  type="email"
+                  type="text"
                   required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  value={userId}
+                  onChange={(e) => setUserId(e.target.value)}
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
-                  placeholder="admin@example.com"
+                  placeholder="ProcureDir"
                 />
               </div>
             </div>

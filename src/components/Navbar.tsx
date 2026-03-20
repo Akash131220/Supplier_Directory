@@ -12,21 +12,22 @@ export default function Navbar() {
   const pathname = usePathname();
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
+    const checkSession = () => {
+      const session = localStorage.getItem("adminSession");
+      setSession(session === "active" ? { user: true } : null);
+    };
+    
+    // Check initially
+    checkSession();
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+    // Listen to storage changes so logging in from another tab or client pushes the event
+    window.addEventListener("storage", checkSession);
+    return () => window.removeEventListener("storage", checkSession);
+  }, [pathname]); // also re-check when pathname changes since local state doesn't hot reload across routes natively without a context
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    localStorage.removeItem("adminSession");
+    setSession(null);
     router.push("/");
   };
 

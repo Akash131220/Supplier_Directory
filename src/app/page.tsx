@@ -45,6 +45,19 @@ export default function Home() {
         setSuppliers([]);
       } else {
         setSuppliers(data || []);
+
+        // Log missing supplier if not found
+        if (data && data.length === 0) {
+          const queryUpper = debouncedQuery.toUpperCase();
+          const isCode = /^SUP\d+$/.test(queryUpper);
+
+          await supabase.from("missing_suppliers").upsert({
+            search_query: debouncedQuery,
+            supplier_code: isCode ? queryUpper : null,
+            supplier_name: !isCode ? debouncedQuery : null,
+            status: "pending"
+          }, { onConflict: "search_query", ignoreDuplicates: true });
+        }
       }
 
       setIsLoading(false);
@@ -94,12 +107,19 @@ export default function Home() {
       {/* Results Section */}
       <div className="w-full max-w-5xl">
         {hasSearched && !isLoading && suppliers.length === 0 && (
-          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 border-dashed">
+          <div className="text-center py-12 bg-white dark:bg-gray-800 rounded-2xl border border-gray-200 dark:border-gray-700 border-dashed animate-in fade-in slide-in-from-bottom-2">
             <Search className="mx-auto h-12 w-12 text-gray-300 dark:text-gray-600 mb-4" />
             <h3 className="text-lg font-medium text-gray-900 dark:text-white">No supplier found</h3>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">
               We couldn't find anything matching "{debouncedQuery}".
             </p>
+            <div className="mt-4 inline-flex items-center gap-2 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-400 px-4 py-2 rounded-lg border border-amber-200 dark:border-amber-800/50">
+              <span className="relative flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-amber-500"></span>
+              </span>
+              This request has been automatically logged for admin review.
+            </div>
           </div>
         )}
 

@@ -1,0 +1,481 @@
+Act as a senior full-stack engineer and UI/UX designer.
+
+Build a modern, responsive Supplier Directory Web Application using:
+
+Frontend: React (Next.js preferred) + Tailwind CSS  
+Backend: Supabase (PostgreSQL + Auth + API)  
+Deployment-ready (Vercel compatible)
+
+----------------------------------------
+🎯 CORE OBJECTIVE
+----------------------------------------
+Create a Supplier Directory system for procurement teams where users can:
+
+1. Search suppliers by:
+   - Supplier Code
+   - Supplier Name
+
+2. View complete supplier details instantly
+
+3. Admin users can:
+   - Add new supplier data
+   - Prevent duplicate entries
+   - Get validation if supplier already exists
+
+----------------------------------------
+🗄️ DATABASE SCHEMA (Supabase)
+----------------------------------------
+Table Name: suppliers
+
+Columns:
+- id (uuid, primary key, auto-generated)
+- supplier_code (text, unique, required)
+- supplier_name (text, required)
+- email_primary (text)
+- email_secondary (text)
+- email_escalation (text)
+- contact_person (text)
+- contact_number (text)
+- country_of_origin (text)
+- shipping_location (text)
+- created_at (timestamp, default now())
+
+Add unique constraint:
+- supplier_code must be unique
+
+----------------------------------------
+🔍 SEARCH FUNCTIONALITY
+----------------------------------------
+- Single search bar
+- Placeholder: "Search by Supplier Code or Name"
+
+Behavior:
+- Real-time or on-click search
+- Case-insensitive search
+- Partial matching (LIKE / ILIKE)
+
+Display result:
+- Clean card layout or table
+- Show ALL supplier details
+
+If no result:
+- Show: "No supplier found"
+
+----------------------------------------
+👤 ADMIN FEATURES
+----------------------------------------
+Authentication:
+- Use Supabase Auth (email login)
+
+Admin Capabilities:
+1. Add Supplier Form
+   Fields:
+   - Supplier Code (required)
+   - Supplier Name (required)
+   - Email Primary
+   - Email Secondary
+   - Email Escalation
+   - Contact Person
+   - Contact Number
+   - Country of Origin
+   - Shipping Location
+
+2. Validation:
+   - If supplier_code already exists:
+     Show error:
+     "Supplier already exists in database"
+
+3. On successful submit:
+   - Save to Supabase
+   - Show success message
+   - Clear form
+
+----------------------------------------
+🎨 UI/UX REQUIREMENTS
+----------------------------------------
+Design a clean, modern SaaS-style interface:
+
+Layout:
+- Top Navbar (Logo + Login/Admin button)
+- Centered Search Bar (hero section style)
+- Results displayed below
+
+Design Style:
+- Minimal, professional (procurement tool feel)
+- Use soft shadows, rounded cards
+- Colors:
+  - Primary: #03367a (trust, enterprise)
+  - Accent: #ff6f00 (highlight/search button)
+  - Background: light gray/white
+
+Components:
+- Search Bar with icon
+- Result Cards or Table
+- Admin Form Modal or Page
+- Toast notifications (success/error)
+
+UX Enhancements:
+- Loading spinner while fetching data
+- Copy email button
+- Click-to-call phone number
+- Mobile responsive design
+
+----------------------------------------
+⚡ PERFORMANCE & BEST PRACTICES
+----------------------------------------
+- Use indexed search on supplier_code & supplier_name
+- Debounce search input
+- Use Supabase client efficiently
+- Handle API errors gracefully
+
+----------------------------------------
+🔐 SECURITY (IMPORTANT)
+----------------------------------------
+Enable Row Level Security (RLS):
+
+Policies:
+- सार्वजनिक users → SELECT only
+- Admin users → INSERT only
+
+Restrict insert/update/delete to authenticated users
+
+----------------------------------------
+📦 EXTRA FEATURES (OPTIONAL BUT RECOMMENDED)
+----------------------------------------
+- CSV Upload for bulk supplier import
+- Filter by country or shipping location
+- Pagination or infinite scroll
+- Export data to CSV
+- Dark mode toggle
+
+----------------------------------------
+📁 OUTPUT REQUIREMENTS
+----------------------------------------
+Generate:
+
+1. Full React/Next.js frontend code
+2. Supabase integration (client setup)
+3. SQL schema setup
+4. Authentication flow
+5. Clean UI components
+6. Instructions to deploy on Vercel
+
+----------------------------------------
+🎯 FINAL EXPECTATION
+----------------------------------------
+The app should feel like a real enterprise procurement tool:
+- Fast
+- Clean
+- Easy to use
+- No duplicate data
+- Mobile friendly
+
+
+
+
+
+
+
+//***************************************************************************************************/
+Act as a senior full-stack developer.
+
+Enhance the existing Supplier Directory Admin Dashboard by adding a
+"Bulk Upload via CSV / Excel" feature with strict validation rules.
+
+----------------------------------------
+🎯 FEATURE OBJECTIVE
+----------------------------------------
+Allow admin users to upload supplier data using:
+- CSV file (.csv)
+- Excel file (.xlsx)
+
+System should:
+✔ Validate file structure
+✔ Validate data format
+✔ Reject incorrect data
+✔ Insert only valid records into Supabase
+
+----------------------------------------
+📍 UI REQUIREMENTS
+----------------------------------------
+Add a new section in Admin Dashboard:
+
+Title: "Bulk Upload Suppliers"
+
+Components:
+1. File Upload Button
+2. Download Sample Template Button
+3. Upload Status Display
+4. Error Table (if failed)
+
+UX Behavior:
+- Drag & Drop support
+- Show loading spinner while processing
+- Show success & error toast notifications
+
+----------------------------------------
+📄 REQUIRED FILE FORMAT (STRICT)
+----------------------------------------
+The uploaded file MUST have EXACT column names:
+
+supplier_code
+supplier_name
+email_primary
+email_secondary
+email_escalation
+contact_person
+contact_number
+country_of_origin
+shipping_location
+
+❗ If column names mismatch → REJECT FILE
+
+----------------------------------------
+✅ VALIDATION RULES
+----------------------------------------
+
+1. Required Fields:
+- supplier_code
+- supplier_name
+
+2. Unique Constraint:
+- supplier_code must NOT already exist in database
+
+3. Email Validation:
+- Must be valid email format
+
+4. Contact Number:
+- Must be numeric (allow + and spaces)
+
+5. Empty Rows:
+- Ignore completely empty rows
+
+6. Duplicate Rows in File:
+- Reject duplicates inside file itself
+
+----------------------------------------
+⚙️ PROCESS FLOW
+----------------------------------------
+
+1. Upload File
+2. Parse file (use PapaParse or SheetJS)
+3. Validate:
+   - Column structure
+   - Field values
+4. If ANY row invalid:
+   ❌ Reject entire file
+   Show error table with:
+     - Row number
+     - Error message
+
+5. If ALL rows valid:
+   ✅ Insert into Supabase
+   Show:
+   "Successfully imported X suppliers"
+
+----------------------------------------
+🗄️ DATABASE ACTION
+----------------------------------------
+
+Use Supabase:
+
+- Insert in bulk
+- Handle errors
+- If supplier_code exists:
+   → Skip OR Reject based on strict mode
+
+STRICT MODE (default):
+→ Reject entire upload if any duplicate found
+
+----------------------------------------
+📊 ERROR DISPLAY UI
+----------------------------------------
+
+Show table:
+
+| Row | Error |
+|-----|------|
+| 2   | Invalid email format |
+| 5   | Supplier code already exists |
+
+----------------------------------------
+📥 TEMPLATE DOWNLOAD
+----------------------------------------
+
+Provide downloadable sample CSV:
+
+Include headers + 1 sample row
+
+----------------------------------------
+⚡ PERFORMANCE
+----------------------------------------
+- Support up to 1000 rows per upload
+- Use batch insert
+- Debounce UI updates
+
+----------------------------------------
+🔐 SECURITY
+----------------------------------------
+- Only authenticated admin can upload
+- Validate on frontend AND backend
+
+----------------------------------------
+📦 OUTPUT REQUIRED
+----------------------------------------
+Generate:
+
+1. React component for file upload
+2. CSV/Excel parser logic
+3. Validation logic
+4. Supabase bulk insert function
+5. Error handling UI
+6. Sample CSV template download
+
+----------------------------------------
+🎯 FINAL RESULT
+----------------------------------------
+- Clean UI upload section
+- Strict validation (no bad data allowed)
+- Clear error reporting
+- Fast bulk upload
+- Production-ready feature
+
+
+
+
+//*************************************************************
+Act as a senior full-stack developer.
+
+Enhance the Supplier Directory system with an intelligent feature:
+
+----------------------------------------
+🎯 OBJECTIVE
+----------------------------------------
+When a user searches for a supplier and NO result is found:
+
+→ Automatically store that search input into a separate Supabase table  
+→ So admin can later review and add missing supplier data
+
+----------------------------------------
+🗄️ DATABASE DESIGN
+----------------------------------------
+
+Create a new table:
+
+Table Name: missing_suppliers
+
+Columns:
+- id (uuid, primary key, auto-generated)
+- supplier_code (text, nullable)
+- supplier_name (text, nullable)
+- search_query (text, required)
+- created_at (timestamp, default now())
+- status (text, default 'pending')
+
+----------------------------------------
+⚙️ LOGIC FLOW
+----------------------------------------
+
+1. User enters search input:
+   Example:
+   - "SUP0120"
+   - "Anil Traders"
+
+2. System searches in suppliers table
+
+3. IF RESULT FOUND:
+   → Show supplier data
+
+4. IF NO RESULT FOUND:
+   → Show "No supplier found"
+
+   AND ALSO:
+
+   👉 Save entry in missing_suppliers table:
+   - If input matches supplier code pattern → store in supplier_code
+   - Else → store in supplier_name
+
+   - Always store full search in search_query
+
+----------------------------------------
+🧠 SMART DETECTION LOGIC
+----------------------------------------
+
+If input contains:
+- "SUP" + numbers → treat as supplier_code
+Else:
+- treat as supplier_name
+
+----------------------------------------
+🔁 DUPLICATE HANDLING
+----------------------------------------
+
+Before inserting:
+→ Check if same search_query already exists
+
+If exists:
+→ DO NOT insert again
+
+----------------------------------------
+👤 ADMIN FEATURE (IMPORTANT)
+----------------------------------------
+
+Create "Missing Suppliers" page:
+
+Admin can:
+- View all missing supplier searches
+- Convert them into real supplier entries
+- Mark status:
+  - pending
+  - completed
+
+----------------------------------------
+🎨 UI/UX
+----------------------------------------
+
+When no result found:
+Show message:
+
+"No supplier found. This request has been logged for review."
+
+(Optional enhancement)
+Add button:
+[ Request Supplier Addition ]
+
+----------------------------------------
+⚡ PERFORMANCE
+----------------------------------------
+
+- Use debounce search
+- Insert only once per unique query
+- Avoid spamming database
+
+----------------------------------------
+🔐 SECURITY
+----------------------------------------
+
+- Allow insert for public users
+- Only admin can view missing_suppliers table
+
+----------------------------------------
+📦 OUTPUT REQUIRED
+----------------------------------------
+
+Generate:
+
+1. Supabase SQL for missing_suppliers table
+2. Frontend logic for detecting "no result"
+3. Insert query to Supabase
+4. Duplicate check logic
+5. Admin UI to view missing suppliers
+
+----------------------------------------
+🎯 FINAL RESULT
+----------------------------------------
+
+System becomes intelligent:
+
+✔ Tracks missing suppliers automatically  
+✔ Helps procurement identify gaps  
+✔ Improves database over time  
+✔ Zero manual tracking needed
